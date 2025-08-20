@@ -1,18 +1,32 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>第 3 關</title>
-  <link rel="stylesheet" href="../style.css">
-  <script src="../script.js" defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>溢彩畫冊 Puzzle - 關卡 3</title>
+<style>
+  body{background:#0b0f14;color:#e8eefc;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0}
+  #puzzle{display:grid;grid-template-columns:repeat(10,40px);grid-gap:4px;margin-bottom:16px}
+  #puzzle div{width:40px;height:40px;border-radius:6px;cursor:pointer;}
+  button{margin:4px;padding:8px 12px;border-radius:6px;background:#172233;color:#e8eefc;border:none;cursor:pointer;}
+  span{margin:0 8px;}
+</style>
 </head>
 <body>
-  <h1>第 3 關</h1>
-  <div id="puzzle" class="puzzle-container"></div>
-  <button onclick="location.href='../index.html'">返回主選單</button>
 
-  <script>
-    initLevel("puzzle", 10, ['red','green','blue','yellow','purple','teal'], 'blue');
-  </script>
+<h2>溢彩畫冊 Puzzle - 關卡 3</h2>
+<div id="puzzle"></div>
+
+<div>
+  <button id="btn-undo">復原 ⟲</button>
+  <button id="btn-hint">提示 💡</button>
+  <span>步數: <span id="moves">0</span>/<span id="move-limit"></span></span>
+  <span>目標色: <span id="target-name"></span></span>
+</div>
+
+<script src="../script.js" defer></script>
+<script>
+  initLevel('puzzle', 2)
+</script>
 </body>
 </html>
