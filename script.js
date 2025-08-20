@@ -1,52 +1,66 @@
-function initPuzzle(containerId, image, size = 3) {
-  const container = document.getElementById(containerId);
-  container.style.gridTemplateColumns = `repeat(${size}, 100px)`;
+const COLORS = ['red','green','blue','yellow','purple','teal'];
+const COLOR_HEX = {
+  red:'#ff6b6b', green:'#3bd671', blue:'#6ea8fe',
+  yellow:'#ffcc66', purple:'#9b8cff', teal:'#36d0c6'
+};
+const DIRS = [[1,0],[-1,0],[0,1],[0,-1]];
 
-  let pieces = [];
-  for (let row = 0; row < size; row++) {
-    for (let col = 0; col < size; col++) {
-      const piece = document.createElement("div");
-      piece.classList.add("piece");
-      piece.style.backgroundImage = `url(${image})`;
-      piece.style.backgroundPosition = `-${col * 100}px -${row * 100}px`;
-      piece.dataset.correct = `${row}-${col}`;
-      pieces.push(piece);
+function initLevel(containerId, size=10, palette=COLORS, targetColor='red') {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  container.style.gridTemplateColumns = `repeat(${size}, 40px)`;
+
+  // 初始化格子
+  let grid = [];
+  for(let i=0;i<size;i++){
+    let row=[];
+    for(let j=0;j<size;j++){
+      const color = palette[Math.floor(Math.random()*palette.length)];
+      row.push(color);
+      const cell = document.createElement('div');
+      cell.className='cell';
+      cell.style.background=COLOR_HEX[color];
+      cell.dataset.i=i;
+      cell.dataset.j=j;
+      container.appendChild(cell);
     }
+    grid.push(row);
   }
 
-  // 打亂拼圖
-  pieces.sort(() => Math.random() - 0.5);
-  pieces.forEach(p => container.appendChild(p));
+  function paintCell(i,j,color){
+    grid[i][j]=color;
+    const idx = i*size+j;
+    container.children[idx].style.background=COLOR_HEX[color];
+  }
 
-  let first = null;
-  container.addEventListener("click", e => {
-    if (!e.target.classList.contains("piece")) return;
-    if (!first) {
-      first = e.target;
-      first.style.outline = "2px solid yellow";
-    } else {
-      let second = e.target;
-      let tmp = document.createElement("div");
-      container.insertBefore(tmp, first);
-      container.insertBefore(first, second);
-      container.insertBefore(second, tmp);
-      container.removeChild(tmp);
-      first.style.outline = "none";
-      first = null;
-
-      checkWin(container, size);
+  container.addEventListener('click', e=>{
+    if(!e.target.classList.contains('cell')) return;
+    const i=parseInt(e.target.dataset.i);
+    const j=parseInt(e.target.dataset.j);
+    const fromColor = grid[i][j];
+    const needColor = palette[(palette.indexOf(fromColor)+1)%palette.length];
+    const seen = new Set();
+    const q=[[i,j]]; seen.add(`${i},${j}`);
+    while(q.length){
+      const [x,y] = q.shift();
+      for(const [dx,dy] of DIRS){
+        const nx=x+dx, ny=y+dy;
+        if(nx<0||ny<0||nx>=size||ny>=size) continue;
+        const key=`${nx},${ny}`;
+        if(seen.has(key)) continue;
+        if(grid[nx][ny]===needColor){
+          paintCell(nx,ny,fromColor);
+          q.push([nx,ny]);
+          seen.add(key);
+        }
+      }
     }
+    paintCell(i,j,fromColor);
+    checkWin();
   });
-}
 
-function checkWin(container, size) {
-  const pieces = [...container.children];
-  let win = pieces.every((p, i) => {
-    let row = Math.floor(i / size);
-    let col = i % size;
-    return p.dataset.correct === `${row}-${col}`;
-  });
-  if (win) {
-    alert("🎉 完成拼圖！");
+  function checkWin(){
+    let done = grid.every(r=>r.every(c=>c===targetColor));
+    if(done) alert('🎉 通關！');
   }
 }
